@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Grafana data source plugin for the Dynatrace v2 API",
   "scripts": {
-    "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
-    "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
+    "build": "TS_NODE_PROJECT=./.config/tsconfig.json webpack -c ./.config/webpack/webpack.config.ts --env production",
+    "dev": "TS_NODE_PROJECT=./.config/tsconfig.json webpack -w -c ./.config/webpack/webpack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
@@ -13,7 +13,8 @@
     "e2e": "npm exec cypress install && npm exec grafana-e2e run",
     "server": "docker compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
-    "package": "rm -rf .pkg && mkdir -p .pkg/firestoned-dynatrace-datasource && cp -R dist/. .pkg/firestoned-dynatrace-datasource/ && (cd .pkg && zip -rq ../firestoned-dynatrace-datasource-$npm_package_version.zip firestoned-dynatrace-datasource) && rm -rf .pkg && echo \"wrote firestoned-dynatrace-datasource-$npm_package_version.zip\""
+    "package": "rm -rf .pkg && mkdir -p .pkg/firestoned-dynatrace-datasource && cp -R dist/. .pkg/firestoned-dynatrace-datasource/ && (cd .pkg && zip -rq ../firestoned-dynatrace-datasource-$npm_package_version.zip firestoned-dynatrace-datasource) && rm -rf .pkg && echo \"wrote firestoned-dynatrace-datasource-$npm_package_version.zip\"",
+    "e2e:update": "npm exec cypress install && npm exec grafana-e2e run --update-screenshots"
   },
   "author": "firestoned",
   "license": "Apache-2.0",
@@ -58,7 +59,10 @@
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
     "webpack-livereload-plugin": "^3.0.2",
-    "webpack-virtual-modules": "^0.6.2"
+    "webpack-virtual-modules": "^0.6.2",
+    "@grafana/e2e": "10.3.3",
+    "@grafana/e2e-selectors": "10.3.3",
+    "@grafana/plugin-meta-extractor": "^0.0.12"
   },
   "dependencies": {
     "@emotion/css": "^11.11.2",
