@@ -1,6 +1,6 @@
 {
   "name": "firestoned-dynatrace-datasource",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Grafana data source plugin for the Dynatrace v2 API",
   "scripts": {
     "build": "TS_NODE_PROJECT=./.config/tsconfig.json webpack -c ./.config/webpack/webpack.config.ts --env production",
