@@ -1,0 +1,17 @@
+# Auto-provisioned data source for local dev.
+# Set DT_URL and DT_TOKEN in your shell before `docker compose up` to
+# auto-configure the data source on Grafana startup. Otherwise just create
+# it from the UI at http://localhost:3000.
+
+apiVersion: 1
+
+datasources:
+  - name: Dynatrace
+    type: firestoned-dynatrace-datasource
+    access: proxy
+    isDefault: true
+    editable: true
+    jsonData:
+      environmentUrl: ${DT_URL}
+    secureJsonData:
+      apiToken: ${DT_TOKEN}
