@@ -12,7 +12,8 @@
     "lint:fix": "npm run lint -- --fix",
     "e2e": "npm exec cypress install && npm exec grafana-e2e run",
     "server": "docker compose up --build",
-    "sign": "npx --yes @grafana/sign-plugin@latest"
+    "sign": "npx --yes @grafana/sign-plugin@latest",
+    "package": "rm -rf .pkg && mkdir -p .pkg/firestoned-dynatrace-datasource && cp -R dist/. .pkg/firestoned-dynatrace-datasource/ && (cd .pkg && zip -rq ../firestoned-dynatrace-datasource-$npm_package_version.zip firestoned-dynatrace-datasource) && rm -rf .pkg && echo \"wrote firestoned-dynatrace-datasource-$npm_package_version.zip\""
   },
   "author": "firestoned",
   "license": "Apache-2.0",
