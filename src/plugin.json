@@ -30,6 +30,13 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
+  "includes": [
+    {
+      "type": "dashboard",
+      "name": "Host Overview",
+      "path": "dashboards/host-overview.json"
+    }
+  ],
   "dependencies": {
     "grafanaDependency": ">=10.4.0",
     "plugins": []

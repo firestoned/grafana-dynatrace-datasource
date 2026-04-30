@@ -1,0 +1,249 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Baseline host metrics from Dynatrace: CPU, memory, disk, network. Filter by entity selector to scope to one host or a tag/group.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+      "description": "CPU usage averaged across the selected hosts.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "mappings": [],
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+          "metricSelector": "builtin:host.cpu.usage:avg",
+          "resolution": "1m",
+          "entitySelector": "$entity",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+      "description": "Memory used as a percentage of total.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "mappings": [],
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 80 },
+              { "color": "red", "value": 95 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+          "metricSelector": "builtin:host.mem.usage:avg",
+          "resolution": "1m",
+          "entitySelector": "$entity",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+      "description": "Disk usage per logical volume.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "mappings": [],
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 80 },
+              { "color": "red", "value": 95 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+          "metricSelector": "builtin:host.disk.usedPct:avg",
+          "resolution": "5m",
+          "entitySelector": "$entity",
+          "refId": "A"
+        }
+      ],
+      "title": "Disk usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+      "description": "Network throughput (in + out) across all NICs.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+          "metricSelector": "builtin:host.net.bytesRx:avg",
+          "resolution": "1m",
+          "entitySelector": "$entity",
+          "refId": "in"
+        },
+        {
+          "datasource": { "type": "firestoned-dynatrace-datasource", "uid": "${DS_DYNATRACE}" },
+          "metricSelector": "builtin:host.net.bytesTx:avg",
+          "resolution": "1m",
+          "entitySelector": "$entity",
+          "refId": "out"
+        }
+      ],
+      "title": "Network throughput",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["dynatrace", "host"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "Dynatrace", "value": "Dynatrace" },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Dynatrace",
+        "multi": false,
+        "name": "DS_DYNATRACE",
+        "options": [],
+        "query": "firestoned-dynatrace-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": { "selected": false, "text": "type(\"HOST\")", "value": "type(\"HOST\")" },
+        "description": "Dynatrace entity selector. Default scopes to all hosts. Examples: type(\"HOST\"),tag(\"env:prod\")  •  entityName(\"web-01\")  •  type(\"HOST\"),mzName(\"my-zone\")",
+        "hide": 0,
+        "label": "Entity selector",
+        "name": "entity",
+        "options": [{ "selected": true, "text": "type(\"HOST\")", "value": "type(\"HOST\")" }],
+        "query": "type(\"HOST\")",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Dynatrace — Host Overview",
+  "uid": "firestoned-dynatrace-host-overview",
+  "version": 1,
+  "weekStart": ""
+}

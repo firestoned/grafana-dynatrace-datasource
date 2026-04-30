@@ -118,14 +118,52 @@ The zip contains a single top-level directory `firestoned-dynatrace-datasource/`
 
 ## Installing the plugin
 
-Releases are **unsigned** — this plugin targets OSS / on-prem deployments. Grafana refuses to load unsigned plugins by default, so every install method below has two parts:
+Releases on GitHub are **signed** with a community signature via Grafana's signing service. The signed zip:
 
-1. Allow the unsigned plugin to load (one-time per Grafana instance).
-2. Get the plugin zip onto disk.
+- Loads on any Grafana instance — no URL binding.
+- Verifies entirely offline against a public key embedded in Grafana's binary, so it works in air-gapped environments (USB / internal Artifactory transfer is fine).
+- Does **not** require `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`.
 
-### Step 1 — Allow the unsigned plugin to load
+If you build the plugin locally (not from a GitHub release), the resulting zip is unsigned and you'll need the env var below to allow it to load. See [Allowing unsigned local builds](#allowing-unsigned-local-builds).
 
-The plugin id is `firestoned-dynatrace-datasource`. Apply **one** of the following — whichever matches how Grafana is deployed.
+### Installing the signed release zip
+
+Three methods. Pick whichever matches your environment.
+
+#### Manual install (any Grafana, including Docker)
+
+Download the zip from [Releases](https://github.com/firestoned/grafana-dynatrace-datasource/releases), unzip into Grafana's plugins directory, and restart:
+
+```bash
+unzip firestoned-dynatrace-datasource-<version>.zip -d /var/lib/grafana/plugins/
+systemctl restart grafana-server
+```
+
+Default plugin path is `/var/lib/grafana/plugins` (deb/rpm) or `/opt/homebrew/var/lib/grafana/plugins` (Homebrew). Override with `GF_PATHS_PLUGINS`.
+
+#### `grafana-cli` from a URL
+
+Host the zip somewhere reachable (GitHub Releases, S3, internal mirror):
+
+```bash
+grafana-cli --pluginUrl https://github.com/firestoned/grafana-dynatrace-datasource/releases/download/v<version>/firestoned-dynatrace-datasource-<version>.zip \
+  plugins install firestoned-dynatrace-datasource
+```
+
+#### Grafana Docker image (`GF_INSTALL_PLUGINS`)
+
+The official `grafana/grafana` image installs plugins on startup from `GF_INSTALL_PLUGINS` — use the `url;id` form for a custom zip:
+
+```yaml
+environment:
+  - GF_INSTALL_PLUGINS=https://github.com/firestoned/grafana-dynatrace-datasource/releases/download/v<version>/firestoned-dynatrace-datasource-<version>.zip;firestoned-dynatrace-datasource
+```
+
+After install, restart Grafana and confirm the plugin appears under **Administration → Plugins**.
+
+### Allowing unsigned local builds
+
+Only relevant if you built the plugin yourself (`npm run build && mage -v buildAll && npm run package`) instead of using a GitHub release. Grafana refuses to load unsigned plugins by default; pick **one** of the patterns below to allow it.
 
 **Environment variable** (Docker, systemd, Kubernetes — most setups):
 
@@ -185,42 +223,6 @@ logger=plugin.loader level=warn msg="Permitting unsigned plugin. This is not rec
 ```
 
 (Default log path: `/var/log/grafana/grafana.log`.) If you don't see that line, the env var or `grafana.ini` setting isn't being read by the running process.
-
-### Step 2 — Install the plugin zip
-
-Three methods. Pick whichever matches your environment.
-
-#### Manual install (any Grafana, including Docker)
-
-Unzip into Grafana's plugins directory and restart:
-
-```bash
-unzip firestoned-dynatrace-datasource-<version>.zip -d /var/lib/grafana/plugins/
-systemctl restart grafana-server
-```
-
-Default plugin path is `/var/lib/grafana/plugins` (deb/rpm) or `/opt/homebrew/var/lib/grafana/plugins` (Homebrew). Override with `GF_PATHS_PLUGINS`.
-
-#### `grafana-cli` from a URL
-
-Host the zip somewhere reachable (GitHub Releases, S3, internal mirror):
-
-```bash
-grafana-cli --pluginUrl https://example.com/firestoned-dynatrace-datasource-<version>.zip \
-  plugins install firestoned-dynatrace-datasource
-```
-
-#### Grafana Docker image (`GF_INSTALL_PLUGINS`)
-
-The official `grafana/grafana` image installs plugins on startup from `GF_INSTALL_PLUGINS` — use the `url;id` form for a custom zip, paired with the allowlist env var from Step 1:
-
-```yaml
-environment:
-  - GF_INSTALL_PLUGINS=https://example.com/firestoned-dynatrace-datasource-<version>.zip;firestoned-dynatrace-datasource
-  - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=firestoned-dynatrace-datasource
-```
-
-After install, restart Grafana and confirm the plugin appears under **Administration → Plugins**.
 
 ## Roadmap
 
