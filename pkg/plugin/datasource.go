@@ -8,10 +8,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
@@ -38,7 +40,7 @@ type settings struct {
 }
 
 // NewDatasource is the factory called by the SDK on instance create / update.
-func NewDatasource(_ context.Context, s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+func NewDatasource(ctx context.Context, s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	var cfg settings
 	if err := json.Unmarshal(s.JSONData, &cfg); err != nil {
 		return nil, fmt.Errorf("invalid jsonData: %w", err)
@@ -47,20 +49,27 @@ func NewDatasource(_ context.Context, s backend.DataSourceInstanceSettings) (ins
 		return nil, errors.New("environmentUrl is required")
 	}
 
+	opts, err := s.HTTPClientOptions(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("http client options: %w", err)
+	}
+	client, err := httpclient.New(opts)
+	if err != nil {
+		return nil, fmt.Errorf("http client: %w", err)
+	}
+
 	token := s.DecryptedSecureJSONData["apiToken"]
 
 	return &Datasource{
 		environmentURL: strings.TrimRight(cfg.EnvironmentURL, "/"),
 		apiToken:       token,
-		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
-		},
+		httpClient:     client,
 	}, nil
 }
 
-// Dispose is called by the SDK when an instance is replaced; nothing to do
-// here since http.Client has no persistent resources to release.
-func (d *Datasource) Dispose() {}
+func (d *Datasource) Dispose() {
+	d.httpClient.CloseIdleConnections()
+}
 
 // queryModel matches the frontend DynatraceQuery type.
 type queryModel struct {
@@ -176,6 +185,7 @@ func parseMetricsResponse(body []byte, refID string) (data.Frames, error) {
 				data.NewField(label, series.DimensionMap, series.Values),
 			)
 			frame.RefID = refID
+			frame.Meta = &data.FrameMeta{Type: data.FrameTypeTimeSeriesMulti}
 			frames = append(frames, frame)
 		}
 	}
@@ -186,18 +196,22 @@ func buildSeriesLabel(metricID string, dims map[string]string) string {
 	if len(dims) == 0 {
 		return metricID
 	}
+	keys := make([]string, 0, len(dims))
+	for k := range dims {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	var sb strings.Builder
 	sb.WriteString(metricID)
 	sb.WriteString(" {")
-	first := true
-	for k, v := range dims {
-		if !first {
+	for i, k := range keys {
+		if i > 0 {
 			sb.WriteString(", ")
 		}
-		first = false
 		sb.WriteString(k)
 		sb.WriteString("=")
-		sb.WriteString(v)
+		sb.WriteString(dims[k])
 	}
 	sb.WriteString("}")
 	return sb.String()
