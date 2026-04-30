@@ -255,7 +255,15 @@ jobs:
       - name: Sign plugin
         env:
           GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-        run: npx --yes @grafana/sign-plugin@latest
+          ROOT_URLS: ${{ vars.ROOT_URLS }}
+        # Private signature (no catalog submission needed). The signed plugin
+        # only loads on Grafana instances whose root_url matches one of the
+        # entries in the ROOT_URLS repo variable (comma-separated). Update
+        # that variable when more instances need to load the plugin. Once
+        # the plugin is accepted into Grafana's community catalog, drop the
+        # --rootUrls flag and the variable to switch to a community
+        # signature (loads anywhere).
+        run: npx --yes @grafana/sign-plugin@latest --rootUrls "$ROOT_URLS"
 
       - name: Re-zip signed plugin
         id: rezip

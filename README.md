@@ -16,29 +16,37 @@ Early. Supports timeseries metric queries via `metricSelector` + optional `entit
 
 ## Quickstart (local dev)
 
-Clone, install, build, run:
+The `Makefile` wraps the full build + run cycle against a local Grafana OSS Docker container. You need Docker (or a compatible runtime), Node ≥ 20, and Go 1.22:
 
 ```bash
 git clone https://github.com/firestoned/grafana-dynatrace-datasource.git
 cd grafana-dynatrace-datasource
 
-# Frontend
-npm install
-npm run build           # one-shot build into ./dist
-# or: npm run dev       # watch mode
-
-# Backend
-go mod download
-go install github.com/magefile/mage@v1.15.0
-mage -v buildAll        # builds gpx_dynatrace binaries for all platforms into ./dist
-
-# Run Grafana with the plugin mounted
 export DT_URL="https://abc12345.live.dynatrace.com"
 export DT_TOKEN="dt0c01.XXXXXXXXXXXXXXXXXXXXXXXX..."
-docker compose up
+
+make dev                # build frontend + backend, start Grafana OSS in Docker
 ```
 
-Open http://localhost:3000, log in as `admin` / `admin`. The Dynatrace data source is auto-provisioned from the env vars above. You can also configure it manually in **Connections → Data sources → Add data source → Dynatrace**.
+Grafana comes up at http://localhost:3000 (admin / admin). The Dynatrace data source is auto-provisioned from the env vars above; you can also add it manually under **Connections → Data sources → Add data source → Dynatrace**.
+
+### Iterating
+
+| You changed…                | Run                              | Why                                                       |
+| --------------------------- | -------------------------------- | --------------------------------------------------------- |
+| TypeScript / React          | `make build-frontend` + refresh  | Webpack rebuild → browser picks it up                     |
+| Go (`pkg/`)                 | `make dev-restart`               | Backend binary loads once at Grafana startup              |
+| `provisioning/` or env vars | `make dev-down && make dev`      | Grafana reads provisioning at startup                     |
+
+Other helpers:
+
+```bash
+make dev-logs           # tail Grafana's logs
+make dev-down           # stop and remove the container
+make test               # frontend Jest + backend `go test ./pkg/...`
+```
+
+If you'd rather drive the build steps yourself: `make build-frontend`, `make build-backend`, then `docker compose up` (the compose file is `docker-compose.yaml`).
 
 ## Project layout
 
@@ -118,13 +126,16 @@ The zip contains a single top-level directory `firestoned-dynatrace-datasource/`
 
 ## Installing the plugin
 
-Releases on GitHub are **signed** with a community signature via Grafana's signing service. The signed zip:
+Releases on GitHub are **signed** via Grafana's signing service. While the plugin is awaiting Grafana community-catalog approval, releases use a **private signature** — they only load on a fixed set of Grafana root URLs configured in this repo's `ROOT_URLS` variable. Operators on other URLs need to either get added to that list (and a new release cut) or use the unsigned-build path below.
 
-- Loads on any Grafana instance — no URL binding.
-- Verifies entirely offline against a public key embedded in Grafana's binary, so it works in air-gapped environments (USB / internal Artifactory transfer is fine).
-- Does **not** require `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS`.
+The signed zip:
 
-If you build the plugin locally (not from a GitHub release), the resulting zip is unsigned and you'll need the env var below to allow it to load. See [Allowing unsigned local builds](#allowing-unsigned-local-builds).
+- Verifies entirely offline against a public key embedded in Grafana's binary, so it works in air-gapped environments (USB / internal mirror transfer is fine) — but only on the URLs it was signed for.
+- Does **not** require `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS` on those URLs.
+
+Once the plugin is accepted into Grafana's catalog, releases will switch to a **community signature** (no URL binding, loads anywhere) — the workflow change is one line.
+
+If you build the plugin locally, the resulting zip is unsigned and you'll need the env var below to allow it to load. See [Allowing unsigned local builds](#allowing-unsigned-local-builds).
 
 ### Installing the signed release zip
 
