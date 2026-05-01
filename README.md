@@ -245,4 +245,4 @@ logger=plugin.loader level=warn msg="Permitting unsigned plugin. This is not rec
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](https://github.com/firestoned/grafana-dynatrace-datasource/blob/main/LICENSE).
