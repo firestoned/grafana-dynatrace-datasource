@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
   "name": "Dynatrace",
   "id": "firestoned-dynatrace-datasource",

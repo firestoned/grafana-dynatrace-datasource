@@ -4,6 +4,7 @@
   "description": "Grafana data source plugin for the Dynatrace v2 API",
   "scripts": {
     "build": "TS_NODE_PROJECT=./.config/tsconfig.json webpack -c ./.config/webpack/webpack.config.ts --env production",
+    "postbuild": "node -e \"const f='dist/plugin.json',j=require('./'+f);delete j.generated;require('fs').writeFileSync(f,JSON.stringify(j,null,4))\"",
     "dev": "TS_NODE_PROJECT=./.config/tsconfig.json webpack -w -c ./.config/webpack/webpack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
