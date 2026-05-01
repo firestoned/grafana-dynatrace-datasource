@@ -41,7 +41,7 @@ test-frontend: npm-deps
 	npm run test:ci
 
 test-backend:
-	go test -race -coverprofile=coverage.out ./pkg/...
+	go test -race -coverprofile=coverage.out ./pkg/plugin/...
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Local dev — run a Grafana OSS container with the plugin mounted from ./dist
