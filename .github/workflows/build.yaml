@@ -140,7 +140,7 @@ jobs:
         run: go mod download
 
       - name: Test
-        run: go test -race -coverprofile=coverage.out ./pkg/...
+        run: go test -race -coverprofile=coverage.out ./pkg/plugin/...
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
@@ -255,15 +255,14 @@ jobs:
       - name: Sign plugin
         env:
           GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
-          ROOT_URLS: ${{ vars.ROOT_URLS }}
+          PLUGIN_SIGN_ROOT_URLS: ${{ secrets.PLUGIN_SIGN_ROOT_URLS }}
         # Private signature (no catalog submission needed). The signed plugin
         # only loads on Grafana instances whose root_url matches one of the
-        # entries in the ROOT_URLS repo variable (comma-separated). Update
-        # that variable when more instances need to load the plugin. Once
+        # entries in the PLUGIN_SIGN_ROOT_URLS secret. Once
         # the plugin is accepted into Grafana's community catalog, drop the
         # --rootUrls flag and the variable to switch to a community
         # signature (loads anywhere).
-        run: npx --yes @grafana/sign-plugin@latest --rootUrls "$ROOT_URLS"
+        run: npx --yes @grafana/sign-plugin@latest --rootUrls "$PLUGIN_SIGN_ROOT_URLS"
 
       - name: Re-zip signed plugin
         id: rezip
